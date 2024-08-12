@@ -1,23 +1,62 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './ItemListContainer.css'
-import ProductCard from '../ProductCard/ProductCard';
+import { getProductos, getProductosPorCategoria } from '../../asyncMock'
+import Item from '../Item/Item'
 import Alert from 'react-bootstrap/Alert';
+import { useParams } from "react-router-dom"
 
-const ItemListContainer = ({ saludo }) => {
+const ItemListContainer = () => {
+
+  const [productos, setProductos] = useState([])
+  const [error, setError] = useState(null)
+  const [cargando, setCargando] = useState(true)
+  const { categoryName } = useParams()
+
+  useEffect(() => {
+
+    const fetchProductos = async () => {
+      if (categoryName) {
+        try {
+          const res = await getProductosPorCategoria(categoryName)
+          setProductos(res)
+        } catch (error) {
+          setError(error)
+        } finally {
+          setCargando(false)
+        }
+      } else {
+        try {
+          const res = await getProductos()
+          setProductos(res)
+        } catch (error) {
+          setError(error)
+        } finally {
+          setCargando(false)
+        }
+      }
+    }
+    fetchProductos()
+  }, [categoryName])
+
+  if (cargando) {
     return (
-    <div>
-            <h2>{['success'].map((variant) => (
-        <Alert key={variant} variant={variant}>
-          {saludo}
+      <h2>
+        <Alert key='success' variant='success'>
+          Cargando...
         </Alert>
-      ))}</h2>
-        <div className='card_container'>
-            <ProductCard CardTitle={'Producto 1'} CardText={'Producto 1: bueno, bonito y barato que vas a poder comprar en esta tienda hecha con React'} />
-            <ProductCard CardTitle={'Producto 2'} CardText={'Producto 2: bueno, bonito y barato que vas a poder comprar en esta tienda hecha con React'} />
-            <ProductCard CardTitle={'Producto 3'} CardText={'Producto 3: bueno, bonito y barato que vas a poder comprar en esta tienda hecha con React'} />
-        </div>    
-    </div>
+      </h2>
     )
+  }
+
+  return (
+    <div className='card_list_container'>
+      {productos.map((el) => {
+        return (
+          <Item key={el.id} producto={el} />
+        )
+      })}
+    </div>
+  )
 }
 
 export default ItemListContainer
