@@ -1,9 +1,13 @@
-import React, { useState} from "react"
+import {useState, useContext} from 'react';
 import Boton from '../Boton/Boton'
 import './ItemCount.css'
+import Button from 'react-bootstrap/Button'
+import {CartContext} from '../../context/CartContext';
 
-const ItemCount = (id) => {
+const ItemCount = ({id, handleComprar}) => {
     
+    const { mostrarCantidad } = useContext(CartContext)
+
     const [count, setCount] = useState(1)
 
     const sumar = () => {
@@ -16,17 +20,15 @@ const ItemCount = (id) => {
             setCount(count -1)
     }
 
-    const comprar = () => {
-        console.log(`Compraste ${count} unidades del producto`)
-  
-    }
-
 return (
-    <div className="container">
+    <div>
+        <p>Cantidad:</p>
         <Boton texto="-" variant="secondary" fn={restar} />
-        <span>{count}</span>
+        <span className="px-2" >{count}</span>
         <Boton texto="+" variant="secondary" fn={sumar} />
-        <Boton texto="Comprar" variant="success" fn={comprar} size="lg" />
+        <div>
+        <Button className="btn btn-piste px-5 my-3" onClick={()=> handleComprar(count)} variant="success">Comprar</Button>
+        </div>
     </div>
 )
 }

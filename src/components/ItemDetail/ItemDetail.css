@@ -1,0 +1,17 @@
+.itemdetail {
+    margin: 1em 0.4em;
+    border: 1px solid #cbe0aa;
+  }
+
+.itemdetail a {
+    text-decoration: none;
+    color: black;
+  }
+  
+.itemdetail a:hover {
+    color: #00348F;
+  }
+  
+.itemdetail p {
+    padding: 0rem 0rem;
+  }

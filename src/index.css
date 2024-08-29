@@ -6,6 +6,17 @@
   box-sizing: border-box;
 }
 
+body img {
+  height: auto;
+  max-width: 100%;
+}
+
+:root {
+  font-family: "Roboto", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
 /* @vite styles
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

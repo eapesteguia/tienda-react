@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react"
 import './ItemDetailContainer.css'
-import { getProducto } from '../../asyncMock'
 import ItemDetail from '../ItemDetail/ItemDetail'
 import Alert from 'react-bootstrap/Alert'
 import { useNavigate, useParams } from "react-router-dom"
+import { db } from '../../services/firebaseConfig'
+import { getDoc, doc } from 'firebase/firestore'
+
 
 const ItemDetailContainer = () => {
 
@@ -12,25 +14,18 @@ const ItemDetailContainer = () => {
     const [cargando, setCargando] = useState(true)
     const { id } = useParams()
     const navigate = useNavigate();
-    
-    const mostrarSiguiente = () => {
-        let ruta = id*1 + 1
-        navigate(`/detalle/${ruta}`)
-    }
-    const mostrarAnterior = () => {
-        if(id > 0){
-            let ruta = id*1 - 1
-            navigate(`/detalle/${ruta}`)
-        }   
-    }
+
 
     useEffect(() => {
-
         const fetchProducto = async () => {
-            try{
-                const res = await getProducto(id)
-                setProducto(res)
-            } catch (error){
+            try {
+                const productoRef = doc(db, "productos", id)
+                const res = await getDoc(productoRef)
+                const data = res.data()
+                const productoFormateado = { ...data, id: res.id }
+                setProducto(productoFormateado)
+
+            } catch (error) {
                 setError(error)
             } finally {
                 setCargando(false)
@@ -50,9 +45,14 @@ const ItemDetailContainer = () => {
     }
 
     return (
-        <div className="card_detail_container">
-        <ItemDetail producto={producto} mostrarAnterior={mostrarAnterior} mostrarSiguiente={mostrarSiguiente}/>
-        </div>
+        <>
+            <div className='text-center my-4'>
+                <h1><strong>Los <span className="c-verde">mejores productos</span> de San Juan</strong></h1>
+            </div>
+            <div className="card_detail_container">
+                <ItemDetail producto={producto} />
+            </div>
+        </>
     )
 }
 

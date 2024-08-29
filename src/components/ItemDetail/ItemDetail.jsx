@@ -1,25 +1,30 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import './ItemDetail.css'
 import Card from 'react-bootstrap/Card'
 import ItemCount from '../ItemCount/ItemCount'
-import Boton from '../Boton/Boton'
 import Button from 'react-bootstrap/Button';
+import { CartContext } from '../../context/CartContext';
 
-const ItemDetail = ({ producto, mostrarAnterior, mostrarSiguiente }) => {
 
-    const { id, image, title, description, category, rating, price } = producto
+const ItemDetail = ({ producto }) => {
+
+    const { agregarAlCarrito } = useContext(CartContext)
+
+    const { id, image, title, description, category, sale, price } = producto
+
+    const handleComprar = (count) => {
+        agregarAlCarrito({ ...producto, quantity: count })
+    }
 
     return (
         <div>
-            <Card className="text-center" style={{ width: '28rem' }}>
+            <Card className="itemdetail text-center" style={{ width: '20rem' }}>
                 <Card.Img variant="top" src={image} />
-                <Card.Header>Detalle de producto</Card.Header>
+                <Card.Header>${price} x {sale}</Card.Header>
                 <Card.Body>
                     <Card.Title> {title} </Card.Title>
-                    <Card.Subtitle> ${price} </Card.Subtitle>
                     <Card.Text> {description} </Card.Text>
-                    <Button onClick={() => mostrarAnterior()} variant="primary">Anterior</Button>
-                    <Button onClick={() => mostrarSiguiente()} variant="primary">Siguiente</Button>
-                    <ItemCount id={id} />
+                    <ItemCount id={id} handleComprar={handleComprar} />
                 </Card.Body>
             </Card>
         </div>

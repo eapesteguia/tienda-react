@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import './ItemListContainer.css'
-import { getProductos, getProductosPorCategoria } from '../../asyncMock'
 import Item from '../Item/Item'
-import Alert from 'react-bootstrap/Alert';
+import Alert from 'react-bootstrap/Alert'
 import { useParams } from "react-router-dom"
+import Cart from '../Cart/Cart'
+import { CartContext } from '../../context/CartContext'
+import { db } from '../../services/firebaseConfig'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 
 const ItemListContainer = () => {
 
@@ -12,31 +15,35 @@ const ItemListContainer = () => {
   const [cargando, setCargando] = useState(true)
   const { categoryName } = useParams()
 
+  const { cart } = useContext(CartContext)
+  // console.log("Carrito:", cart)
+
+
   useEffect(() => {
 
-    const fetchProductos = async () => {
-      if (categoryName) {
-        try {
-          const res = await getProductosPorCategoria(categoryName)
-          setProductos(res)
-        } catch (error) {
-          setError(error)
-        } finally {
-          setCargando(false)
-        }
-      } else {
-        try {
-          const res = await getProductos()
-          setProductos(res)
-        } catch (error) {
-          setError(error)
-        } finally {
-          setCargando(false)
-        }
-      }
+    setCargando(true)
+    const productosRef = collection(db, "productos")
+
+    if (categoryName) {
+      const prodsPorCategoria = query(productosRef, where("category", "==", categoryName))
+      getDocs(prodsPorCategoria).then(snapshot => {
+        const prods = snapshot.docs.map(doc => {
+          const data = doc.data()
+          return { ...data, id: doc.id }
+        })
+        setProductos(prods)
+      }).finally(setCargando(false))
+    } else {
+      getDocs(productosRef).then(snapshot => {
+        const prods = snapshot.docs.map(doc => {
+          const data = doc.data()
+          return { ...data, id: doc.id }
+        })
+        setProductos(prods)
+      }).finally(setCargando(false))
     }
-    fetchProductos()
   }, [categoryName])
+
 
   if (cargando) {
     return (
@@ -49,13 +56,20 @@ const ItemListContainer = () => {
   }
 
   return (
-    <div className='card_list_container'>
-      {productos.map((el) => {
-        return (
-          <Item key={el.id} producto={el} />
-        )
-      })}
-    </div>
+    <>
+      <div className='text-center my-4'>
+        <label className="c-verde">Nuestros productos</label>
+        <h1><strong>Pistachos y frutos secos sanjuaninos</strong></h1>
+        <p>Compras por mayor y menor. Consule por promociones.</p>
+      </div>
+      <div className='card_list_container'>
+        {productos.map((el) => {
+          return (
+            <Item key={el.id} producto={el} />
+          )
+        })}
+      </div>
+    </>
   )
 }
 
